@@ -417,71 +417,64 @@ elif page == "Edit Intern":
                     if edit_team:
                         current_team = intern_data.get("Team(eg :2 or 3)", "")
                         fields_to_edit["Team(eg :2 or 3)"] = st.text_input("Team(eg :2 or 3)", value=current_team)
-                
-                # Other fields
-                field_mapping = {
-                    "GitLab User Name": "text",
-                    "Year": "selectbox",
-                    "Received Offer letter": "selectbox",
-                    "College": "text",
-                    "GitLab Acc (README.md)": "text",
-                    "GitLab Acc Link": "text",
-                    "Innings Courses (Python & AI)": "text",
-                    "Huggingchat/Dify": "text",
-                    "Huggingchat Link": "text",
-                    "Streamlit app and Deployment": "text",
-                    "Streamlit Link": "text",
-                    "Huggingface+streamlit integration": "text",
-                    "HF+Streamlit Link": "text",
-                    "Pushed Apps onto GitLab": "selectbox",
-                    "Data Collection (started?)": "selectbox",
-                    "Size of Data": "text",
-                    "Can go to any other places": "text",
-                    "Blockers?": "textarea",
-                    "Remarks": "textarea"
-                }
-                
-                for field, input_type in field_mapping.items():
-                    edit_field = st.checkbox(f"Edit {field}")
-                    if edit_field:
-                        current_value = intern_data.get(field, "")
-                        if input_type == "text":
-                            fields_to_edit[field] = st.text_input(f"{field}", value=current_value)
-                        elif input_type == "textarea":
-                            fields_to_edit[field] = st.text_area(f"{field}", value=current_value)
-                        elif input_type == "selectbox":
-                            if field == "Year":
-                                options = ["1", "2", "3", "4"]
-                                index = options.index(current_value) if current_value in options else 0
-                                fields_to_edit[field] = st.selectbox(f"{field}", options, index=index)
-                            elif field in ["Received Offer letter", "Pushed Apps onto GitLab", "Data Collection (started?)"]:
-                                options = ["Yes", "No"]
-                                index = options.index(current_value) if current_value in options else 0
-                                fields_to_edit[field] = st.selectbox(f"{field}", options, index=index)
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    update_submitted = st.form_submit_button("Update Intern")
-                with col2:
-                    submit_submitted = st.form_submit_button("Submit Changes")
-                
-                if (update_submitted or submit_submitted) and fields_to_edit:
-                    old_data = intern_data.copy()
-                    
-                    # Update only the selected fields
-                    for field, value in fields_to_edit.items():
-                        df.loc[df["Name"] == selected_intern, field] = value
-                    
-                    # Save changes
-                    df.to_csv(data_file, index=False)
-                    
-                    # Save history with changed fields
-                    changed_fields = list(fields_to_edit.keys())
-                    new_data = df[df["Name"] == selected_intern].iloc[0].to_dict()
-                    save_history(selected_intern, "Updated", old_data, new_data, changed_fields)
-                    
-                    st.success(f"Updated {len(fields_to_edit)} field(s) for {selected_intern}")
-                    st.rerun()
+                    # Other fields
+                    field_mapping = {
+                        "GitLab User Name": "text",
+                        "Year": "selectbox",
+                        "Received Offer letter": "selectbox",
+                        "College": "text",
+                        "GitLab Acc (README.md)": "text",
+                        "GitLab Acc Link": "text",
+                        "Innings Courses (Python & AI)": "text",
+                        "Huggingchat/Dify": "text",
+                        "Huggingchat Link": "text",
+                        "Streamlit app and Deployment": "text",
+                        "Streamlit Link": "text",
+                        "Huggingface+streamlit integration": "text",
+                        "HF+Streamlit Link": "text",
+                        "Pushed Apps onto GitLab": "selectbox",
+                        "Data Collection (started?)": "selectbox",
+                        "Size of Data": "text",
+                        "Can go to any other places": "text",
+                        "Blockers?": "textarea",
+                        "Remarks": "textarea"
+                    }
+                    for field, input_type in field_mapping.items():
+                        edit_field = st.checkbox(f"Edit {field}")
+                        if edit_field:
+                            current_value = intern_data.get(field, "")
+                            if input_type == "text":
+                                fields_to_edit[field] = st.text_input(f"{field}", value=current_value)
+                            elif input_type == "textarea":
+                                fields_to_edit[field] = st.text_area(f"{field}", value=current_value)
+                            elif input_type == "selectbox":
+                                if field == "Year":
+                                    options = ["1", "2", "3", "4"]
+                                    index = options.index(current_value) if current_value in options else 0
+                                    fields_to_edit[field] = st.selectbox(f"{field}", options, index=index)
+                                elif field in ["Received Offer letter", "Pushed Apps onto GitLab", "Data Collection (started?)"]:
+                                    options = ["Yes", "No"]
+                                    index = options.index(current_value) if current_value in options else 0
+                                    fields_to_edit[field] = st.selectbox(f"{field}", options, index=index)
+                    # Place the submit buttons INSIDE the form
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        update_submitted = st.form_submit_button("Update Intern")
+                    with col2:
+                        submit_submitted = st.form_submit_button("Submit Changes")
+                    if (update_submitted or submit_submitted) and fields_to_edit:
+                        old_data = intern_data.copy()
+                        # Update only the selected fields
+                        for field, value in fields_to_edit.items():
+                            df.loc[df["Name"] == selected_intern, field] = value
+                        # Save changes
+                        df.to_csv(data_file, index=False)
+                        # Save history with changed fields
+                        changed_fields = list(fields_to_edit.keys())
+                        new_data = df[df["Name"] == selected_intern].iloc[0].to_dict()
+                        save_history(selected_intern, "Updated", old_data, new_data, changed_fields)
+                        st.success(f"Updated {len(fields_to_edit)} field(s) for {selected_intern}")
+                        st.rerun()
     except Exception as e:
         st.error(f"[ERROR] {e}")
 
