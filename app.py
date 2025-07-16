@@ -459,9 +459,13 @@ elif page == "Edit Intern":
                                 index = options.index(current_value) if current_value in options else 0
                                 fields_to_edit[field] = st.selectbox(f"{field}", options, index=index)
                 
-                update_submitted = st.form_submit_button("Update Intern")
+                col1, col2 = st.columns(2)
+                with col1:
+                    update_submitted = st.form_submit_button("Update Intern")
+                with col2:
+                    submit_submitted = st.form_submit_button("Submit Changes")
                 
-                if update_submitted and fields_to_edit:
+                if (update_submitted or submit_submitted) and fields_to_edit:
                     old_data = intern_data.copy()
                     
                     # Update only the selected fields
