@@ -507,6 +507,15 @@ elif page == "Delete Intern":
                 st.write(f"**College:** {intern_data.get('College', 'N/A')}")
                 st.write(f"**Year:** {intern_data.get('Year', 'N/A')}")
                 st.write(f"**Status:** {intern_data.get('Active', 'Yes')}")
+                # Option to update status directly
+                st.markdown("---")
+                st.write("### Update Intern Status")
+                new_status = st.selectbox("Set status to:", ["Active", "Inactive", "Academic Break"], index=["Yes", "No", "Academic Break"].index(intern_data.get("Active", "Yes")) if intern_data.get("Active", "Yes") in ["Yes", "No", "Academic Break"] else 0)
+                if st.button("Update Status"):
+                    df.loc[df["Name"] == selected_intern, "Active"] = ("Yes" if new_status == "Active" else new_status)
+                    df.to_csv(data_file, index=False)
+                    st.success(f"Status for {selected_intern} updated to {new_status}.")
+                    st.rerun()
                 # Check if intern is in any team and show the team name
                 teams = load_teams()
                 in_team = False
