@@ -52,7 +52,7 @@ if not st.session_state.logged_in:
     super_admin_password = st.text_input("Super Admin Password", type="password")
     
     if st.button("Super Admin Login"):
-        if super_admin_username == "admin" and super_admin_password == st.secrets.get("admin_password", "sleeping"):
+        if super_admin_username == "admin" and super_admin_password == st.secrets.get("admin_password", "admin123"):
             st.session_state.logged_in = True
             st.session_state.tech_lead = "Super Admin"
             st.session_state.is_super_admin = True
