@@ -486,7 +486,14 @@ if 'Active' not in df.columns:
 elif page == "Delete Intern":
     try:
         st.title("Delete Intern")
-        filtered_df = df # No need to filter by team here, as it's handled by the page selection
+        # Add status filter
+        status_options = ["All", "Active", "Inactive", "Academic Break"]
+        selected_status = st.selectbox("Filter interns by status:", status_options)
+        # Filter the dataframe based on status
+        if selected_status != "All":
+            filtered_df = df[df["Active"] == ("Yes" if selected_status == "Active" else selected_status)]
+        else:
+            filtered_df = df
         if filtered_df.empty:
             st.info("No interns to delete.")
         else:
