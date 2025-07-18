@@ -226,18 +226,25 @@ def show_intern_dashboard(user):
         st.header("Your Profile and Progress")
         st.markdown("Update your details below. Your email and name are linked to your login and cannot be changed here.")
         form_inputs = {}
+        
+        # FIX: Helper function to safely get the index for selectbox widgets
+        def safe_get_index(options, key, default_option):
+            value = intern_data.get(key)
+            try:
+                return options.index(value)
+            except (ValueError, TypeError):
+                return options.index(default_option)
+
         col1, col2, col3 = st.columns(3)
         with col1:
             st.text_input("Name", value=intern_data.get("Name", ""), disabled=True)
             form_inputs["Cohort"] = st.text_input("Cohort", value=intern_data.get("Cohort", ""))
             
-            # FIX: Handle None value from database by providing a default of 0
             team_value = int(intern_data.get("Team") or 0)
             form_inputs["Team"] = st.number_input("Team (eg: 2 or 3)", value=team_value, step=1, format="%d")
             
             form_inputs["GitLab User Name"] = st.text_input("GitLab User Name", value=intern_data.get("GitLab User Name", ""))
             
-            # FIX: Handle None value from database by providing a default
             year_value = int(intern_data.get("Year") or datetime.now().year)
             form_inputs["Year"] = st.number_input("Year", value=year_value, step=1, format="%d")
 
@@ -253,21 +260,22 @@ def show_intern_dashboard(user):
             st.subheader("Task Status")
             task_status_options = ["Completed", "In Progress", "Not Started"]
             yes_no_options = ["Yes", "No"]
-            form_inputs["Received Offer letter"] = st.selectbox("Received Offer letter?", yes_no_options, index=yes_no_options.index(intern_data.get("Received Offer letter", "No")))
-            form_inputs["GitLab Acc (README.md)"] = st.selectbox("GitLab README.md Complete?", yes_no_options, index=yes_no_options.index(intern_data.get("GitLab Acc (README.md)", "No")))
-            form_inputs["Innings Courses (Python & AI)"] = st.selectbox("Innings Courses", task_status_options, index=task_status_options.index(intern_data.get("Innings Courses (Python & AI)", "Not Started")))
-            form_inputs["Huggingchat/Dify"] = st.selectbox("Huggingchat/Dify Task", task_status_options, index=task_status_options.index(intern_data.get("Huggingchat/Dify", "Not Started")))
-            form_inputs["Streamlit app and Deployment"] = st.selectbox("Streamlit App Task", task_status_options, index=task_status_options.index(intern_data.get("Streamlit app and Deployment", "Not Started")))
-            form_inputs["Huggingface+streamlit integration"] = st.selectbox("HF+Streamlit Integration", task_status_options, index=task_status_options.index(intern_data.get("Huggingface+streamlit integration", "Not Started")))
-            form_inputs["Pushed Apps onto GitLab"] = st.selectbox("Pushed App to GitLab?", yes_no_options, index=yes_no_options.index(intern_data.get("Pushed Apps onto GitLab", "No")))
+            
+            form_inputs["Received Offer letter"] = st.selectbox("Received Offer letter?", yes_no_options, index=safe_get_index(yes_no_options, "Received Offer letter", "No"))
+            form_inputs["GitLab Acc (README.md)"] = st.selectbox("GitLab README.md Complete?", yes_no_options, index=safe_get_index(yes_no_options, "GitLab Acc (README.md)", "No"))
+            form_inputs["Innings Courses (Python & AI)"] = st.selectbox("Innings Courses", task_status_options, index=safe_get_index(task_status_options, "Innings Courses (Python & AI)", "Not Started"))
+            form_inputs["Huggingchat/Dify"] = st.selectbox("Huggingchat/Dify Task", task_status_options, index=safe_get_index(task_status_options, "Huggingchat/Dify", "Not Started"))
+            form_inputs["Streamlit app and Deployment"] = st.selectbox("Streamlit App Task", task_status_options, index=safe_get_index(task_status_options, "Streamlit app and Deployment", "Not Started"))
+            form_inputs["Huggingface+streamlit integration"] = st.selectbox("HF+Streamlit Integration", task_status_options, index=safe_get_index(task_status_options, "Huggingface+streamlit integration", "Not Started"))
+            form_inputs["Pushed Apps onto GitLab"] = st.selectbox("Pushed App to GitLab?", yes_no_options, index=safe_get_index(yes_no_options, "Pushed Apps onto GitLab", "No"))
 
         st.markdown("---")
         st.subheader("Data Collection & Other Info")
         d_col1, d_col2 = st.columns(2)
         with d_col1:
-            form_inputs["Data Collection (started?)"] = st.selectbox("Data Collection Started?", yes_no_options, index=yes_no_options.index(intern_data.get("Data Collection (started?)", "No")))
+            form_inputs["Data Collection (started?)"] = st.selectbox("Data Collection Started?", yes_no_options, index=safe_get_index(yes_no_options, "Data Collection (started?)", "No"))
             form_inputs["Size of Data"] = st.text_input("Size of Data (e.g., 100MB, 1.2GB)", value=intern_data.get("Size of Data", ""))
-            form_inputs["Can go to any other places"] = st.selectbox("Willing to relocate?", yes_no_options, index=yes_no_options.index(intern_data.get("Can go to any other places", "No")))
+            form_inputs["Can go to any other places"] = st.selectbox("Willing to relocate?", yes_no_options, index=safe_get_index(yes_no_options, "Can go to any other places", "No"))
         with d_col2:
             form_inputs["Blockers?"] = st.text_area("Blockers?", value=intern_data.get("Blockers?", ""), help="Describe any issues blocking your progress.")
             form_inputs["Remarks"] = st.text_area("Remarks", value=intern_data.get("Remarks", ""), help="Any other comments or remarks.")
