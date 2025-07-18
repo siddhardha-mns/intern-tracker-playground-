@@ -91,14 +91,15 @@ def show_auth_page():
                         try:
                             res = sb.auth.sign_up({"email": email, "password": password})
                             if res.user:
+                                # This insert will now rely on the default values set in the SQL schema
+                                # for fields like 'Team' and 'Year'.
                                 initial_data = {
-                                    "id": str(res.user.id), "email": email, "Name": name, "College": college,
-                                    "created_at": datetime.now().isoformat(), "updated_at": datetime.now().isoformat(),
-                                    "Active": True, "Received Offer letter": "No", "GitLab Acc (README.md)": "No",
-                                    "Innings Courses (Python & AI)": "Not Started", "Huggingchat/Dify": "Not Started",
-                                    "Streamlit app and Deployment": "Not Started", "Huggingface+streamlit integration": "Not Started",
-                                    "Pushed Apps onto GitLab": "No", "Data Collection (started?)": "No",
-                                    "Can go to any other places": "No",
+                                    "id": str(res.user.id), 
+                                    "email": email, 
+                                    "Name": name, 
+                                    "College": college,
+                                    "created_at": datetime.now().isoformat(),
+                                    "updated_at": datetime.now().isoformat()
                                 }
                                 sb.table("interns").insert(initial_data).execute()
                                 st.success("Registration successful! Please proceed to the login tab.")
@@ -126,7 +127,6 @@ def parse_size(size_str):
     size_str = size_str.strip().upper()
     
     try:
-        # Find numeric part
         value_match = re.search(r'[\d\.]+', size_str)
         if not value_match:
             return 0.0
@@ -155,7 +155,6 @@ def show_admin_dashboard():
         st.warning("No intern data found.")
         return
 
-    # --- Metrics ---
     total_interns = len(df)
     total_data_gb = df['Size of Data'].apply(parse_size).sum()
     
@@ -167,19 +166,14 @@ def show_admin_dashboard():
     
     st.markdown("---")
 
-    # --- Filtering ---
     st.header("Filter and View Interns")
     colleges = sorted(df['College'].unique().tolist())
     selected_colleges = st.multiselect("Filter by College:", options=colleges, default=[])
     
-    if selected_colleges:
-        filtered_df = df[df['College'].isin(selected_colleges)]
-    else:
-        filtered_df = df
+    filtered_df = df[df['College'].isin(selected_colleges)] if selected_colleges else df
         
     st.dataframe(filtered_df)
     
-    # --- Download All Data ---
     csv = filtered_df.to_csv(index=False).encode('utf-8')
     st.download_button(
         label="Download Filtered Data as CSV",
@@ -236,9 +230,17 @@ def show_intern_dashboard(user):
         with col1:
             st.text_input("Name", value=intern_data.get("Name", ""), disabled=True)
             form_inputs["Cohort"] = st.text_input("Cohort", value=intern_data.get("Cohort", ""))
-            form_inputs["Team"] = st.number_input("Team (eg: 2 or 3)", value=intern_data.get("Team"), step=1, format="%d")
+            
+            # FIX: Handle None value from database by providing a default of 0
+            team_value = int(intern_data.get("Team") or 0)
+            form_inputs["Team"] = st.number_input("Team (eg: 2 or 3)", value=team_value, step=1, format="%d")
+            
             form_inputs["GitLab User Name"] = st.text_input("GitLab User Name", value=intern_data.get("GitLab User Name", ""))
-            form_inputs["Year"] = st.number_input("Year", value=intern_data.get("Year", 2024), step=1, format="%d")
+            
+            # FIX: Handle None value from database by providing a default
+            year_value = int(intern_data.get("Year") or datetime.now().year)
+            form_inputs["Year"] = st.number_input("Year", value=year_value, step=1, format="%d")
+
             form_inputs["College"] = st.text_input("College", value=intern_data.get("College", ""), disabled=True)
             form_inputs["Active"] = st.selectbox("Active", [True, False], index=0 if intern_data.get("Active", True) else 1)
         with col2:
